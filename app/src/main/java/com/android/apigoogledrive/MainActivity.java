@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.content.IntentSender;
 import android.graphics.Bitmap;
+import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
@@ -19,6 +20,7 @@ import android.view.MenuItem;
 import android.widget.Toast;
 
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.common.ConnectionResult;
@@ -35,6 +37,7 @@ import com.google.android.gms.drive.DriveFolder;
 import com.google.android.gms.drive.DriveId;
 import com.google.android.gms.drive.DriveResourceClient;
 import com.google.android.gms.drive.MetadataChangeSet;
+import com.google.android.gms.drive.OpenFileActivityBuilder;
 import com.google.android.gms.drive.OpenFileActivityOptions;
 import com.google.android.gms.tasks.Continuation;
 import com.google.android.gms.tasks.OnFailureListener;
@@ -51,6 +54,7 @@ import java.io.Writer;
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
     private GoogleSignInClient mGoogleSignInClient;
+    private GoogleApiClient mGoogleApiClient;
     private DriveResourceClient mDriveResourceClient;
     private DriveClient mDriveClient;
     public DriveFile file;
@@ -73,14 +77,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
+                createFile();
             }
         });
 
         mGoogleSignInClient = buildGoogleSignInClient();
         Toast.makeText(getApplicationContext(), "Google SignIn obtenido", Toast.LENGTH_SHORT).show();
         startActivityForResult(mGoogleSignInClient.getSignInIntent(), REQUEST_CODE_SIGN_IN);
+
     }
 
     private GoogleSignInClient buildGoogleSignInClient() {
@@ -101,40 +105,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
 
     @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_main, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
-        }
-
-        return super.onOptionsItemSelected(item);
-    }
-
-
-
-    @Override
     public void onClick(View v) {
         switch (v.getId()){
             case R.id.btnAbrir:
-                Task<DriveContents> openFileTask =
-                        getDriveResourceClient().openFile(file, DriveFile.MODE_READ_ONLY);
-                break;
 
-            case R.id.btnCrear:
-                //Create a file
-                createFile();
                 break;
 
             case R.id.btnFoto:
@@ -148,6 +122,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     protected void showMessage(String message) {
         Toast.makeText(this, message, Toast.LENGTH_LONG).show();
     }
+
 
     @Override
     protected void onActivityResult(final int requestCode, final int resultCode, final Intent data) {
@@ -202,6 +177,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                             new Intent(MediaStore.ACTION_IMAGE_CAPTURE), REQUEST_CODE_CAPTURE_IMAGE);
                 }
                 break;
+
         }
     }
 
